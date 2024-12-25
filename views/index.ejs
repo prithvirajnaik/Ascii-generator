@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>ASCII Art Generator</title>
+</head>
+<body>
+    <nav id="nav-bar">
+        <h1 id="main-title">ASCII Art Generator</h1>
+    </nav>
+    <form id="ascii-form">
+        <label for="text" id="enter-prompt">Enter text:</label>
+        <textarea type="text" name="text" id="text" autocomplete="off" rows="5"></textarea>
+        <div id ="sub-container">
+            <div class="sub-container-div"> 
+                <label for="color">Color:</label>
+                <input type="color" id="color">
+            </div>
+            <div class="sub-container-div">
+                <label for="bgcolor">Background Color:</label>
+                <input type="color" id="bgcolor" value="#FFFFFF">
+            </div>
+            <div class="sub-container-div">
+                <label for="font-select">Font:</label>
+                <input list="font-list" id="font-input" placeholder="Search font">
+                <datalist id="font-list">
+                    <% fonts.forEach(font => { %>
+                        <option value="<%= font %>"><%= font %></option>
+                    <% }) %>
+                </datalist>
+            </div>
+        </div>
+    </form>
+    <div id="downloadbtn" >
+        <button onclick="downloadArt()" >Download as PNG</button>
+    </div>
+    <div id="art-container">
+        <pre id="ascii-output"></pre>
+    </div>
+    <canvas id="ascii-canvas" style="display: none;"></canvas>
+    <script>
+        document.getElementById('ascii-form').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent form submission
+        });
+
+        const inputField = document.getElementById('text');
+        const bgcolorInput = document.getElementById('bgcolor');
+        const outputContainer = document.getElementById('ascii-output');
+        const colorInput = document.getElementById('color');
+        const fontInput = document.getElementById('font-input');
+        inputField.addEventListener('input', async function () {
+            const text = inputField.value;
+            const color = colorInput.value;
+            const font = fontInput.value;
+            const response = await fetch('/enterText', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text: text ,font: font})
+            });
+
+            if (response.ok) {
+                const data = await response.text();
+                outputContainer.textContent = data;
+                outputContainer.style.color = color;
+            } else {
+                outputContainer.textContent = 'Error generating ASCII art.';
+            }
+        });
+
+        colorInput.addEventListener('input', function () {
+            const color = colorInput.value;   
+            outputContainer.style.color = color;
+        });
+
+        bgcolorInput.addEventListener('input', function () {
+            const color = bgcolorInput.value;   
+            outputContainer.style.backgroundColor = color;
+        });
+
+       
+        function downloadArt() {
+            const canvas = document.getElementById('ascii-canvas');
+            const context = canvas.getContext('2d');
+            const asciiText = outputContainer.textContent;
+            const textColor = colorInput.value;
+            const bgColor = bgcolorInput.value;
+
+               // Split text into lines
+            const lines = asciiText.split('\n');
+            const fontSize = 16; // Font size in pixels
+            const lineHeight = fontSize * 1.2; // Line spacing
+            const padding = 20; // Padding around the text
+            const charWidth = fontSize * 0.6; // Approximate width of a character for monospace
+
+            // Calculate canvas dimensions
+            const maxCharsPerLine = Math.max(...lines.map(line => line.length)); // Max characters in a single line
+            const canvasWidth = Math.ceil(maxCharsPerLine * charWidth) + padding * 2;
+            const canvasHeight = Math.ceil(lines.length * lineHeight) + padding * 2;
+
+            // Update canvas dimensions
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+
+            // Set background color
+            context.fillStyle = bgColor;
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Set text properties
+            context.font = `${fontSize}px monospace`;
+            context.fillStyle = textColor;
+
+            // Render each line of ASCII art
+            lines.forEach((line, index) => {
+                const x = padding; // Start drawing with left padding
+                const y = padding + (index + 1) * lineHeight; // Increment Y based on line height
+                context.fillText(line, x, y);
+            });
+
+
+            // Create a link to download the image
+            const link = document.createElement('a');
+            link.download = 'ascii-art.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+     
+    </script>
+</body>
+</html>

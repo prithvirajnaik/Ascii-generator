@@ -1,0 +1,23 @@
+{
+  "name": "ascigenerator",
+  "version": "1.0.0",
+  "description": "an ascii string generator using npm libraries",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "figlet",
+    "chlak",
+    "npm"
+  ],
+  "author": "prithviraj pramod naik",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "figlet": "^1.8.0"
+  }
+}
