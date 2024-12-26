@@ -26,7 +26,7 @@ A web-based tool to convert text into ASCII art, with customizable features such
 
    Open your terminal and clone the repository using:
    ```bash
-   git clone https://github.com/your-username/Ascii-generator.git
+   git clone https://github.com/prithvirajnaik/Ascii-generator.git
 2. **Navigate to project directory:** 
     ```bash
     cd Ascii-generator
